@@ -4,7 +4,7 @@ import { sendNewsSummaryEmail, sendWelcomeEmail } from "../nodemailer";
 import { getAllUsersForNewsEmail } from "../actions/user.actions";
 import { getWatchlistSymbolsByEmail } from "../actions/watchlist.actions";
 import { getNews } from "../actions/finnhub.actions";
-import { formatDateToday } from "../utils";
+import { getFormattedTodayDate } from "../utils";
 
 
 export const sendSignUpEmail = inngest.createFunction(
@@ -176,6 +176,8 @@ export const sendSignUpEmail = inngest.createFunction(
 //     }
 // )
 
+
+
 export const sendDailyNewsSummary = inngest.createFunction(
   {
     id: "daily-news-summary",
@@ -278,9 +280,9 @@ export const sendDailyNewsSummary = inngest.createFunction(
               "No market news.";
 
             summaries.push({ user, newsContent });
-          } catch (e) {
+          } catch (error) {
             console.error(
-              "Failed to summarize news for:",
+              "Failed to summarize news for userId:",
               user.email
             );
             summaries.push({ user, newsContent: null });
@@ -297,12 +299,14 @@ export const sendDailyNewsSummary = inngest.createFunction(
             userNewsSummaries.map(async ({ user,newsContent}) => {
                 if(!newsContent) return false;
 
-                return await sendNewsSummaryEmail({ email: user.email, date: formatDateToday, newsContent })
+                // return await sendNewsSummaryEmail({ email: user.email, date: formatDateToday, newsContent })
+                const date = getFormattedTodayDate(); //compute now
+                return await sendNewsSummaryEmail({ email: user.email, date, newsContent })
             })
         )
     })
     return { success: true, message: 'Daily news summary emails sent successfully' }
-    
+
     // await step.run("send-news-emails", async () => {
     //   for (const { user, newsContent } of userNewsSummaries) {
     //     await sendNewsSummaryEmail({

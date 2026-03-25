@@ -220,6 +220,39 @@ declare global {
     email: string;
     name: string;
   };
+
+  type FinnhubSearchResult = {
+    symbol: string;
+    description: string;
+    displaySymbol: string;
+    type: string;
+  };
+
+  type FinnhubSearchResponse = {
+    count: number;
+    result: FinnhubSearchResult[];
+  };
+
+  // 🔹 Finnhub Profile
+  type FinnhubStockProfile = {
+    name?: string;
+    ticker?: string;
+    exchange?: string;
+  };
+
+  // 🔹 Extended (internal use)
+  type EnrichedFinnhubSearchResult = FinnhubSearchResult & {
+    exchange?: string;
+  };
+
+  // 🔹 Final App Type
+  type StockWithWatchlistStatus = {
+    symbol: string;
+    name: string;
+    exchange: string;
+    type: string;
+    isInWatchlist: boolean;
+  };
 }
 
 export {};
