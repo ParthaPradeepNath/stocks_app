@@ -1,7 +1,6 @@
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -33,7 +32,7 @@ const SelectField = ({
         render={({ field }) => (
           <Select value={field.value} onValueChange={field.onChange}>
             <SelectTrigger className="w-45">
-              <SelectValue placeholder="Theme" />
+              <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent className="bg-gray-800 border-gray-600 text-white">
               {options.map((option) => (

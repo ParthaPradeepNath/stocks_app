@@ -23,7 +23,7 @@ Signalist is a modern stock market dashboard built with **Next.js 16, React 19, 
 
 ### 🔐 Auth + Onboarding
 - Email/password auth via **better-auth** + MongoDB adapter + `nextCookies()` (`lib/better-auth/auth.ts`)
-- Protected routes via `middleware/index.ts` + `(root)/layout.tsx` session guard
+- Protected routes via `proxy.ts` (Next.js 16 Proxy, formerly Middleware) + `(root)/layout.tsx` session guard
 - Rich sign-up form: full name, country (`react-select-country-list`), investment goals, risk tolerance, preferred industry (`react-hook-form` + shadcn forms)
 - Sign-in / Sign-up split layout with dashboard preview image
 
@@ -162,13 +162,13 @@ hooks/
   useTradingViewWidget.tsx   # injects s3.tradingview.com script
   useDebounce.ts
 
-middleware/index.ts          # getSessionCookie() guard (note: non-standard path, not root middleware.ts)
+proxy.ts                     # getSessionCookie() guard (Next.js 16 Proxy at project root)
 types/global.d.ts            # SignIn/UpFormData, Stock, Finnhub*, MarketNewsArticle, Watchlist, Alert...
 scripts/test-db.mjs test-db.ts
 public/assets/{icons/logo.svg, images/dashboard.png, ...}
 ```
 
-> Note: `middleware/index.ts` uses `matcher: ['/((?!api|_next/static|_next/image|favicon.ico|sign-in|sign-up|assets).*)']`. Next.js conventionally expects root `middleware.ts` — verify this runs in your Next 16 setup if auth redirects misbehave.
+> Note: `proxy.ts` uses `matcher: ['/((?!api|_next/static|_next/image|favicon.ico|sign-in|sign-up|assets).*)']` to skip auth pages, API routes, and static assets.
 
 ---
 
