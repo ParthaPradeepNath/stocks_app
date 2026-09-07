@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import type { Db } from "mongodb";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -41,4 +42,18 @@ export const connectToDatabase = async (): Promise<typeof mongoose> => {
   console.log(`Connected to database (env: ${process.env.NODE_ENV})`);
 
   return cached.conn;
+};
+
+// Returns the raw MongoDB Db instance typed against the top-level `mongodb`
+// driver. Mongoose bundles its own nested copy of the driver, so
+// `mongoose.connection.db` is nominally a different `Db` type even when the
+// versions match — the cast below bridges that gap in one place. Safe at
+// runtime because both copies are the same driver version.
+export const getDb = async (): Promise<Db> => {
+  const conn = await connectToDatabase();
+  const db = conn.connection.db;
+
+  if (!db) throw new Error("MongoDB connection not found");
+
+  return db as unknown as Db;
 };
