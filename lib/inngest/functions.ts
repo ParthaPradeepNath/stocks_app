@@ -6,7 +6,6 @@ import { getWatchlistSymbolsByEmail } from "../actions/watchlist.actions";
 import { getNews } from "../actions/finnhub.actions";
 import { getFormattedTodayDate } from "../utils";
 
-
 export const sendSignUpEmail = inngest.createFunction(
   {
     id: "sign-up-email",
@@ -20,10 +19,7 @@ export const sendSignUpEmail = inngest.createFunction(
 - Preferred industry: ${event.data.preferredIndustry}
     `;
 
-    const prompt = PERSONALIZED_WELCOME_EMAIL_PROMPT.replace(
-      "{{userProfile}}",
-      userProfile,
-    );
+    const prompt = PERSONALIZED_WELCOME_EMAIL_PROMPT.replace("{{userProfile}}", userProfile);
 
     const response = await step.ai.infer("generate-welcome-intro", {
       model: step.ai.models.gemini({
@@ -43,8 +39,7 @@ export const sendSignUpEmail = inngest.createFunction(
       const part = response.candidates?.[0]?.content?.parts?.[0];
 
       const introText =
-        (part && "text" in part ? part.text : null) ||
-        "Thanks for joining Signalist.";
+        (part && "text" in part ? part.text : null) || "Thanks for joining Signalist.";
 
       const {
         data: { email, name },
@@ -168,15 +163,13 @@ export const sendSignUpEmail = inngest.createFunction(
 //             } catch (e) {
 //                 console.error('Failed to summarize news for: ', user.email);
 //                 userNewsSummaries.push({ user, newsContent: null });
-                
+
 //             }
 //         }
 //         // Step #4: Send emails
 
 //     }
 // )
-
-
 
 export const sendDailyNewsSummary = inngest.createFunction(
   {
@@ -188,10 +181,7 @@ export const sendDailyNewsSummary = inngest.createFunction(
   },
   async ({ step }) => {
     // Step #1: Get all users
-    const users = await step.run(
-      "get-all-users",
-      getAllUsersForNewsEmail
-    );
+    const users = await step.run("get-all-users", getAllUsersForNewsEmail);
 
     if (!users || users.length === 0) {
       return {
@@ -201,112 +191,92 @@ export const sendDailyNewsSummary = inngest.createFunction(
     }
 
     // Step #2: Prepare personalized news per user
-    const results = await step.run(
-      "prepare-news-per-user",
-      async () => {
-        const perUser: Array<{
-          user: UserForNewsEmail;
-          articles: MarketNewsArticle[];
-        }> = [];
+    const results = await step.run("prepare-news-per-user", async () => {
+      const perUser: Array<{
+        user: UserForNewsEmail;
+        articles: MarketNewsArticle[];
+      }> = [];
 
-        for (const user of users as UserForNewsEmail[]) {
-          try {
-            const symbols = await getWatchlistSymbolsByEmail(user.email);
+      for (const user of users as UserForNewsEmail[]) {
+        try {
+          const symbols = await getWatchlistSymbolsByEmail(user.email);
 
-            let articles = await getNews(symbols);
+          let articles = await getNews(symbols);
 
-            // Limit to 6 articles
+          // Limit to 6 articles
+          articles = (articles || []).slice(0, 6);
+
+          // Fallback to general news
+          if (!articles || articles.length === 0) {
+            articles = await getNews();
             articles = (articles || []).slice(0, 6);
-
-            // Fallback to general news
-            if (!articles || articles.length === 0) {
-              articles = await getNews();
-              articles = (articles || []).slice(0, 6);
-            }
-
-            perUser.push({ user, articles });
-          } catch (e) {
-            console.error(
-              "daily-news: error preparing user news",
-              user.email,
-              e
-            );
-            perUser.push({ user, articles: [] });
           }
-        }
 
-        return perUser;
+          perUser.push({ user, articles });
+        } catch (e) {
+          console.error("daily-news: error preparing user news", user.email, e);
+          perUser.push({ user, articles: [] });
+        }
       }
-    );
+
+      return perUser;
+    });
 
     // Step #3: Generate AI summaries
-    const userNewsSummaries = await step.run(
-      "summarize-news",
-      async () => {
-        const summaries: {
-          user: UserForNewsEmail;
-          newsContent: string | null;
-        }[] = [];
+    const userNewsSummaries = await step.run("summarize-news", async () => {
+      const summaries: {
+        user: UserForNewsEmail;
+        newsContent: string | null;
+      }[] = [];
 
-        for (const { user, articles } of results) {
-          try {
-            const prompt = NEWS_SUMMARY_EMAIL_PROMPT.replace(
-              "{{newsData}}",
-              JSON.stringify(articles, null, 2)
-            );
+      for (const { user, articles } of results) {
+        try {
+          const prompt = NEWS_SUMMARY_EMAIL_PROMPT.replace(
+            "{{newsData}}",
+            JSON.stringify(articles, null, 2),
+          );
 
-            const response = await step.ai.infer(
-              `summarize-news-${user.email}`,
-              {
-                model: step.ai.models.gemini({
-                  model: "gemini-2.5-flash-lite",
-                }),
-                body: {
-                  contents: [
-                    {
-                      role: "user",
-                      parts: [{ text: prompt }],
-                    },
-                  ],
+          const response = await step.ai.infer(`summarize-news-${user.email}`, {
+            model: step.ai.models.gemini({
+              model: "gemini-2.5-flash-lite",
+            }),
+            body: {
+              contents: [
+                {
+                  role: "user",
+                  parts: [{ text: prompt }],
                 },
-              }
-            );
+              ],
+            },
+          });
 
-            const part =
-              response.candidates?.[0]?.content?.parts?.[0];
+          const part = response.candidates?.[0]?.content?.parts?.[0];
 
-            const newsContent =
-              (part && "text" in part ? part.text : null) ||
-              "No market news.";
+          const newsContent = (part && "text" in part ? part.text : null) || "No market news.";
 
-            summaries.push({ user, newsContent });
-          } catch (error) {
-            console.error(
-              "Failed to summarize news for userId:",
-              user.email,
-              error
-            );
-            summaries.push({ user, newsContent: null });
-          }
+          summaries.push({ user, newsContent });
+        } catch (error) {
+          console.error("Failed to summarize news for userId:", user.email, error);
+          summaries.push({ user, newsContent: null });
         }
-
-        return summaries;
       }
-    );
+
+      return summaries;
+    });
 
     // Step #4: Send the emails
     await step.run("send-news-emails", async () => {
-        await Promise.all(
-            userNewsSummaries.map(async ({ user,newsContent}) => {
-                if(!newsContent) return false;
+      await Promise.all(
+        userNewsSummaries.map(async ({ user, newsContent }) => {
+          if (!newsContent) return false;
 
-                // return await sendNewsSummaryEmail({ email: user.email, date: formatDateToday, newsContent })
-                const date = getFormattedTodayDate(); //compute now
-                return await sendNewsSummaryEmail({ email: user.email, date, newsContent })
-            })
-        )
-    })
-    return { success: true, message: 'Daily news summary emails sent successfully' }
+          // return await sendNewsSummaryEmail({ email: user.email, date: formatDateToday, newsContent })
+          const date = getFormattedTodayDate(); //compute now
+          return await sendNewsSummaryEmail({ email: user.email, date, newsContent });
+        }),
+      );
+    });
+    return { success: true, message: "Daily news summary emails sent successfully" };
 
     // await step.run("send-news-emails", async () => {
     //   for (const { user, newsContent } of userNewsSummaries) {
@@ -322,5 +292,5 @@ export const sendDailyNewsSummary = inngest.createFunction(
     //   success: true,
     //   message: "Daily news summary sent successfully",
     // };
-  }
+  },
 );

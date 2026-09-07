@@ -40,10 +40,7 @@ export const signUpWithEmail = async ({
   }
 };
 
-export const signInWithEmail = async ({
-  email,
-  password
-}: SignInFormData) => {
+export const signInWithEmail = async ({ email, password }: SignInFormData) => {
   try {
     const auth = await getAuth();
     const response = await auth.api.signInEmail({
@@ -60,9 +57,9 @@ export const signInWithEmail = async ({
 export const signOut = async () => {
   try {
     const auth = await getAuth();
-    await auth.api.signOut({ headers: await headers()})
+    await auth.api.signOut({ headers: await headers() });
   } catch (e) {
-    console.log('Sign out failed', e)
-    return { success: false, error: 'Sign out failed' }
+    console.log("Sign out failed", e);
+    return { success: false, error: "Sign out failed" };
   }
-}
+};

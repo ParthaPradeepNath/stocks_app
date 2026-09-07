@@ -15,7 +15,7 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
 
   return (
     <div className="flex min-h-screen p-4 md:p-6 lg:p-8">
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+      <section className="grid w-full grid-cols-1 gap-8 md:grid-cols-2">
         {/* Left column */}
         <div className="flex flex-col gap-6">
           <TradingViewWidget
@@ -42,7 +42,11 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
         {/* Right column */}
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            <WatchlistButton symbol={symbol.toUpperCase()} company={symbol.toUpperCase()} isInWatchlist={false} />
+            <WatchlistButton
+              symbol={symbol.toUpperCase()}
+              company={symbol.toUpperCase()}
+              isInWatchlist={false}
+            />
           </div>
 
           <TradingViewWidget

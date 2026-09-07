@@ -9,11 +9,13 @@ Signalist is a modern stock market dashboard built with **Next.js 16, React 19, 
 ## ✨ Features
 
 ### 📊 Market Dashboard (`/`)
+
 - Market overview, stock heatmap, top stories timeline, and market quotes
 - Powered by **TradingView widgets** (dark theme, transparent)
 - Configs in `lib/constants.ts`: `MARKET_OVERVIEW_WIDGET_CONFIG`, `HEATMAP_WIDGET_CONFIG`, `TOP_STORIES_WIDGET_CONFIG`, `MARKET_DATA_WIDGET_CONFIG`
 
 ### 🔍 Stock Search + Details (`/stocks/[symbol]`)
+
 - Global command-palette search (`Cmd+K`) with debounced **Finnhub** lookup — `components/SearchCommand.tsx`
 - Detail page with:
   - Symbol info, advanced candlestick + baseline charts
@@ -22,22 +24,26 @@ Signalist is a modern stock market dashboard built with **Next.js 16, React 19, 
 - Popular symbols fallback + `profile2` enrichment (`lib/actions/finnhub.actions.ts`)
 
 ### 🔐 Auth + Onboarding
+
 - Email/password auth via **better-auth** + MongoDB adapter + `nextCookies()` (`lib/better-auth/auth.ts`)
 - Protected routes via `proxy.ts` (Next.js 16 Proxy, formerly Middleware) + `(root)/layout.tsx` session guard
 - Rich sign-up form: full name, country (`react-select-country-list`), investment goals, risk tolerance, preferred industry (`react-hook-form` + shadcn forms)
 - Sign-in / Sign-up split layout with dashboard preview image
 
 ### 📬 AI Emails (Inngest + Gemini + Nodemailer)
+
 - `app/user.created` → AI-personalized welcome email (`gemini-2.5-flash-lite` + `PERSONALIZED_WELCOME_EMAIL_PROMPT`)
 - Cron `0 12 * * *` (`app/send.daily.news`) → per-user watchlist news → Gemini summary (`NEWS_SUMMARY_EMAIL_PROMPT`) → Gmail via Nodemailer
 - Served at `app/api/inngest/route.ts` — `serve({ client: inngest, functions: [sendSignUpEmail, sendDailyNewsSummary] })`
 - Templates in `lib/nodemailer/templates.ts`, sender `Signalist <signalist@jsmastery.pro>`
 
 ### ⭐ Watchlist
+
 - Mongoose model `database/models/watchlist.model.ts` — `{ userId (indexed), symbol (uppercase), company, addedAt }`, unique `{ userId, symbol }`
 - Server actions in `lib/actions/watchlist.actions.ts`
 
 ### 🎨 UI/UX
+
 - **shadcn/ui (radix-nova, neutral) + Tailwind v4 + `tw-animate-css`**, dark mode by default (`next-themes`, `app/layout.tsx` `class="dark"`)
 - `lucide-react` icons, `sonner` toasts, `cmdk` command menu
 - Custom components: `Header`, `NavItems`, `UserDropdown` (DiceBear avatars), `TradingViewWidget`, `WatchlistButton`, `forms/*`
@@ -47,22 +53,23 @@ Signalist is a modern stock market dashboard built with **Next.js 16, React 19, 
 
 ## 🛠️ Tech Stack
 
-| Layer | Tech |
-|---|---|
-| Framework | Next.js 16.2.0 (App Router), React 19.2.4, TypeScript 5 |
-| Styling / UI | Tailwind CSS v4, shadcn/ui, Radix UI, clsx + tailwind-merge, lucide-react, sonner, cmdk, next-themes |
-| Forms | react-hook-form, react-select-country-list |
-| Auth | better-auth 1.5.6 + mongodbAdapter |
-| Database | MongoDB 7 + Mongoose 9 (`lib` cached `connectToDatabase()`) |
-| Market Data | Finnhub API (`/search`, `/stock/profile2`, `/company-news`, `/news`), TradingView embeds |
-| Background / AI / Email | Inngest 4, Google Gemini `gemini-2.5-flash-lite` via `step.ai.infer`, Nodemailer 8 (Gmail) |
-| Config | `next.config.ts` (ignores ESLint/TS errors on build), `@/*` path alias, PostCSS `@tailwindcss/postcss` |
+| Layer                   | Tech                                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| Framework               | Next.js 16.2.0 (App Router), React 19.2.4, TypeScript 5                                                |
+| Styling / UI            | Tailwind CSS v4, shadcn/ui, Radix UI, clsx + tailwind-merge, lucide-react, sonner, cmdk, next-themes   |
+| Forms                   | react-hook-form, react-select-country-list                                                             |
+| Auth                    | better-auth 1.5.6 + mongodbAdapter                                                                     |
+| Database                | MongoDB 7 + Mongoose 9 (`lib` cached `connectToDatabase()`)                                            |
+| Market Data             | Finnhub API (`/search`, `/stock/profile2`, `/company-news`, `/news`), TradingView embeds               |
+| Background / AI / Email | Inngest 4, Google Gemini `gemini-2.5-flash-lite` via `step.ai.infer`, Nodemailer 8 (Gmail)             |
+| Config                  | `next.config.ts` (ignores ESLint/TS errors on build), `@/*` path alias, PostCSS `@tailwindcss/postcss` |
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ (Bun also works — `bun.lock` is committed)
 - MongoDB URI (Atlas or local)
 - Finnhub API key — https://finnhub.io
@@ -71,6 +78,7 @@ Signalist is a modern stock market dashboard built with **Next.js 16, React 19, 
 - Inngest account / dev server (optional for local email jobs)
 
 ### 1. Install
+
 ```bash
 npm install
 # or
@@ -78,6 +86,7 @@ bun install
 ```
 
 ### 2. Environment
+
 Create `.env` (see var names below — never commit secrets):
 
 ```bash
@@ -101,12 +110,14 @@ NODEMAILER_PASSWORD=your-gmail-app-password
 ```
 
 ### 3. Run
+
 ```bash
 npm run dev
 # open http://localhost:3000
 ```
 
 ### 4. Other scripts
+
 ```bash
 npm run build   # production build
 npm run start   # serve production build
@@ -115,7 +126,9 @@ npm run test:db # node scripts/test-db.mjs — verifies MongoDB connection
 ```
 
 ### 5. Inngest (for emails)
+
 Expose `http://localhost:3000/api/inngest` to Inngest dev server / cloud, and trigger:
+
 - `app/user.created` on sign-up (`lib/actions/auth.actions.ts` → `inngest.send(...)`)
 - `app/send.daily.news` on cron `0 12 * * *`
 
@@ -185,13 +198,13 @@ public/assets/{icons/logo.svg, images/dashboard.png, ...}
 
 ## 🧭 Routes
 
-| Route | Description |
-|---|---|
-| `/` | Dashboard (guarded) |
-| `/search` | Search entry (via `NavItems` + `SearchCommand`) |
-| `/stocks/[symbol]` | Stock detail |
-| `/sign-in`, `/sign-up` | Auth |
-| `/api/inngest` | Background job endpoint |
+| Route                  | Description                                     |
+| ---------------------- | ----------------------------------------------- |
+| `/`                    | Dashboard (guarded)                             |
+| `/search`              | Search entry (via `NavItems` + `SearchCommand`) |
+| `/stocks/[symbol]`     | Stock detail                                    |
+| `/sign-in`, `/sign-up` | Auth                                            |
+| `/api/inngest`         | Background job endpoint                         |
 
 ---
 

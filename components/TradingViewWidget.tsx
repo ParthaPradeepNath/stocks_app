@@ -23,13 +23,8 @@ function TradingViewWidget({
 
   return (
     <div className="w-full">
-      {title && (
-        <h3 className="font-semibold text-2xl text-gray-100 mb-5">{title}</h3>
-      )}
-      <div
-        className={cn("tradingview-widget-container", className)}
-        ref={containerRef}
-      >
+      {title && <h3 className="mb-5 text-2xl font-semibold text-gray-100">{title}</h3>}
+      <div className={cn("tradingview-widget-container", className)} ref={containerRef}>
         <div
           className="tradingview-widget-container__widget"
           style={{ height: "calc(100% - 32px)", width: "100%" }}

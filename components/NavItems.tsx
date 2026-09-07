@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SearchCommand from "./SearchCommand";
 
-const NavItems = ({ initialStocks}: {initialStocks: StockWithWatchlistStatus[]}) => {
+const NavItems = ({ initialStocks }: { initialStocks: StockWithWatchlistStatus[] }) => {
   const pathname = usePathname();
 
   const isActive = (path: string) => {
@@ -15,24 +15,20 @@ const NavItems = ({ initialStocks}: {initialStocks: StockWithWatchlistStatus[]})
   };
 
   return (
-    <ul className="flex flex-col sm:flex-row p-2 gap-3 sm:gap-10 font-medium">
+    <ul className="flex flex-col gap-3 p-2 font-medium sm:flex-row sm:gap-10">
       {/* String labels are fragile. Use route to decide when to render the SearchCommand */}
       {NAV_ITEMS.map(({ href, label }) => {
         if (href === "/search")
           return (
             <li key="search-trigger">
-              <SearchCommand
-                renderAs="text"
-                label="Search"
-                initialStocks={initialStocks}
-              />
+              <SearchCommand renderAs="text" label="Search" initialStocks={initialStocks} />
             </li>
           );
         return (
           <li key={href}>
             <Link
               href={href}
-              className={`hover:text-yellow-500 transition-colors ${
+              className={`transition-colors hover:text-yellow-500 ${
                 isActive(href) ? "text-gray-100" : ""
               }`}
             >

@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import { Control, Controller, FieldError, FieldValues, Path } from "react-hook-form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Command,
   CommandEmpty,
@@ -20,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import countryList from "react-select-country-list";
-
 
 type CountrySelectProps<TFieldValues extends FieldValues = FieldValues> = {
   name: Path<TFieldValues>;
@@ -71,19 +66,11 @@ const CountrySelect = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-full p-0 bg-gray-800 border-gray-600"
-        align="start"
-      >
-        <Command className="bg-gray-800 border-gray-600">
-          <CommandInput
-            placeholder="Search countries..."
-            className="country-select-input"
-          />
-          <CommandEmpty className="country-select-empty">
-            No country found.
-          </CommandEmpty>
-          <CommandList className="max-h-60 bg-gray-800 scrollbar-hide-default">
+      <PopoverContent className="w-full border-gray-600 bg-gray-800 p-0" align="start">
+        <Command className="border-gray-600 bg-gray-800">
+          <CommandInput placeholder="Search countries..." className="country-select-input" />
+          <CommandEmpty className="country-select-empty">No country found.</CommandEmpty>
+          <CommandList className="scrollbar-hide-default max-h-60 bg-gray-800">
             <CommandGroup className="bg-gray-800">
               {countries.map((country) => (
                 <CommandItem
@@ -133,14 +120,10 @@ export const CountrySelectField = <TFieldValues extends FieldValues = FieldValue
         rules={{
           required: required ? `Please select ${label.toLowerCase()}` : false,
         }}
-        render={({ field }) => (
-          <CountrySelect value={field.value} onChange={field.onChange} />
-        )}
+        render={({ field }) => <CountrySelect value={field.value} onChange={field.onChange} />}
       />
       {error && <p className="text-sm text-red-500">{error.message}</p>}
-      <p className="text-xs text-gray-500">
-        Helps us show market data and news relevant to you.
-      </p>
+      <p className="text-xs text-gray-500">Helps us show market data and news relevant to you.</p>
     </div>
   );
 };
